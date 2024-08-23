@@ -6,8 +6,8 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 public class MyServer {
+
     public static void main(String[] args) throws IOException {
-        // try-with-resources
         try (ServerSocket ss = new ServerSocket(8080)) {
             System.out.println("服务器启动...");
             while (true) {
@@ -21,7 +21,7 @@ public class MyServer {
 }
 
 class MyHandler extends Thread {
-    Socket sock;
+    private final Socket sock;
 
     public MyHandler(Socket sock) {
         this.sock = sock;
@@ -52,38 +52,20 @@ class MyHandler extends Thread {
         }
         for (; ; ) {
             String header = reader.readLine();
-            if (header.isEmpty()) { // 读取到空行时, HTTP Header 读取完毕
-                break;
-            }
-            if (header.equals("sec-ch-ua-platform: \"windows\"")) {
-                System.out.println("===" + header);
-                requestOk = false;
+            if (header.isEmpty()) {
                 break;
             }
             System.out.println(header);
         }
         System.out.println(requestOk ? "Response OK" : "Response Error");
         if (!requestOk) {
-            // 发送错误响应:
             writer.write("HTTP/1.0 404 Not Found\r\n");
             writer.write("Content-Length: 0\r\n");
             writer.write("\r\n");
             writer.flush();
         } else {
             // 要返回的 HTML
-            String body = """
-                    <!DOCTYPE html>
-                    <html lang="zh">
-                    <head>
-                        <meta charset="UTF-8">
-                        <title>Index</title>
-                    </head>
-                    <body>
-                        <p>html from MyServer...</p>
-                    </body>
-                    </html>
-                    """;
-
+            String body = getSecondhandGoods();
             // 发送成功响应:
             writer.write("HTTP/1.1 200 OK\r\n");
             writer.write("Connection: keep-alive\r\n");
@@ -95,5 +77,11 @@ class MyHandler extends Thread {
         }
 
         System.out.println("=== === ===");
+    }
+
+    private String getSecondhandGoods() {
+        StringBuilder htmlInfo = new StringBuilder();
+
+        return htmlInfo.toString();
     }
 }
