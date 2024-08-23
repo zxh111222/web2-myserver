@@ -51,58 +51,73 @@ class MyHandler extends Thread {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8));
         boolean requestOk = false;
         String first = reader.readLine();
-        if (first.startsWith("GET / HTTP/1.")) {
+        /*if (first.startsWith("GET / HTTP/1.")) {
             requestOk = true;
-        }
-        System.out.println("--------看下 reader.readLine() 是什么------------:" + first);
+        }*/
+        System.out.println("--------看下 reader.readLine() 是什么:" + first + "------------");
         String path = first.split(" ")[1];
-        System.out.println("--------检查 path(请求路径) ------------:" + path);
-        /*for (; ; ) {
+        System.out.println("--------检查 path(请求路径): " + path + "------------");
+        for (; ; ) {
             String header = reader.readLine();
             if (header.isEmpty()) {
                 break;
             }
             System.out.println(header);
-        }*/
+        }
 
         System.out.println(requestOk ? "Response OK" : "Response Error");
         if (path.equals("/")) {
             // 要返回的 HTML (首页)
             String body = getSecondhandGoods();
-            // 发送成功响应:
-            writer.write("HTTP/1.1 200 OK\r\n");
-            writer.write("Connection: keep-alive\r\n");
-            writer.write("Content-Type: text/html\r\n");
-            writer.write("Content-Length: " + body.length() + "\r\n");
-            writer.write("\r\n"); // 空行标识Header和Body的分隔
-            writer.write(body);
+            writeResponse(writer, "200 OK", "text/html", body);
 
         }else if(path.endsWith(".css")) {
             // 处理 CSS文件 的请求
-            File file = new File("src/main/java/Secondhand/static" + path);
-            System.out.println(".css的相对路径" + file.toPath());
-            if (file.exists()) {
-                System.out.println(".css文件读取成功");
-                String cssContent = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
-                writer.write("HTTP/1.1 200 OK\r\n");
-                writer.write("Connection: keep-alive\r\n");
-                writer.write("Content-Type: text/css\r\n");
-                writer.write("Content-Length: " + cssContent.length() + "\r\n");
-                writer.write("\r\n");
-                writer.write(cssContent);
-            } else {
-                writer.write("HTTP/1.1 404 Not Found\r\n");
-                writer.write("Connection: keep-alive\r\n");
-                writer.write("Content-Type: text/plain\r\n");
-                writer.write("Content-Length: " + "404 Not Found".length() + "\r\n");
-                writer.write("\r\n");
-                writer.write("404 Not Found");
-            }
+            serveStaticFile(output, "src/main/java/Secondhand/static" + path, "text/css");
+        } else if (path.endsWith(".js")) {
+            // 处理 JavaScript文件 请求
+            serveStaticFile(output, "src/main/java/Secondhand/static" + path, "application/javascript");
+        } else if (path.endsWith(".png")) {
+            // 处理 PNG图片 请求
+            serveStaticFile(output, "src/main/java/Secondhand/static" + path, "image/png");
+        } else {
+            // 处理未找到的请求
+            writeResponse(writer, "404 Not Found", "text/plain", "404 Not Found");
         }
         writer.flush();
 
         System.out.println("=== === ===");
     }
+
+    private void writeResponse(BufferedWriter writer, String status, String contentType, String body) throws IOException {
+        writer.write("HTTP/1.1 " + status + "\r\n");
+        writer.write("Connection: keep-alive\r\n");
+        writer.write("Content-Type: " + contentType + "\r\n");
+        writer.write("Content-Length: " + body.length() + "\r\n");
+        writer.write("\r\n"); // 空行标识Header和Body的分隔
+        writer.write(body);
+    }
+
+    private void serveStaticFile(OutputStream output, String filePath, String contentType) throws IOException {
+        File file = new File(filePath);
+        if (file.exists()) {
+            byte[] fileContent = Files.readAllBytes(file.toPath());
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8));
+            writer.write("HTTP/1.1 200 OK\r\n");
+            writer.write("Content-Type: " + contentType + "\r\n");
+            writer.write("Content-Length: " + fileContent.length + "\r\n");
+            writer.write("\r\n");
+            writer.flush();
+            output.write(fileContent);
+            output.flush();
+        } else {
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8));
+            writeResponse(writer, "404 Not Found", "text/plain", "404 Not Found");
+            writer.flush();
+        }
+    }
+
+
 
     private String getSecondhandGoods() {
         StringBuilder htmlInfo = new StringBuilder();
