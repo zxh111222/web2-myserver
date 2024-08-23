@@ -4,6 +4,9 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.sql.*;
+
+import static Secondhand.MyDateConversionUtil.formatDate;
 
 public class MyServer {
 
@@ -82,6 +85,33 @@ class MyHandler extends Thread {
     private String getSecondhandGoods() {
         StringBuilder htmlInfo = new StringBuilder();
 
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/app", "root", "123456");
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT title, url, created_time, updated_time FROM information");
+
+            while (rs.next()) {
+                String title = rs.getString("title");
+                String url = rs.getString("url");
+                String created_time = formatDate(rs.getTimestamp("created_time"));
+                String updated_time = formatDate(rs.getTimestamp("updated_time"));
+
+                CustomResult article = new CustomResult(title, url, created_time, updated_time);
+
+                htmlInfo.append("""
+                <tr>
+                    <th><a href="%s">%s</a></th>
+                    <th>%s</th>
+                    <th>%s</th>
+                </tr>
+                """.formatted(article.getUrl(), article.getTitle(), article.getCreatedAt(), article.getUpdatedAt()));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Database error: " + e.getMessage());
+        }
+
         String body = """
                     <!DOCTYPE html>
                     <html lang="zh">
@@ -103,12 +133,14 @@ class MyHandler extends Thread {
                                     <td>更新时间</td>
                                 </tr>
                             </thead>
-                            <tbody class=\\"table-group-divider\\">
+                            <tbody class="table-group-divider">
+                            %s
                             </tbody>
                         </table>
                     </body>
                     </html>
-                    """;
+                    """.formatted(htmlInfo.toString());
+
 
         return body;
     }
