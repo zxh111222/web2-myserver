@@ -82,6 +82,19 @@ class MyHandler extends Thread {
     private String getSecondhandGoods() {
         StringBuilder htmlInfo = new StringBuilder();
 
-        return htmlInfo.toString();
+        String body = """
+                    <!DOCTYPE html>
+                    <html lang="zh">
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>Index</title>
+                    </head>
+                    <body>
+                        <p>html from MyServer...</p>
+                    </body>
+                    </html>
+                    """;
+
+        return body;
     }
 }
