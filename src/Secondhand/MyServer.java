@@ -87,10 +87,25 @@ class MyHandler extends Thread {
                     <html lang="zh">
                     <head>
                         <meta charset="UTF-8">
-                        <title>Index</title>
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>二手商品列表</title>
+                        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
                     </head>
                     <body>
-                        <p>html from MyServer...</p>
+                        <div class="container my-5">
+                        <h2 class="mb-4">物尽其用</h2>
+                        <table class="table table-bordered border-secondary-subtle table-striped table-hover">
+                            <caption>二手商品买卖信息表</caption>
+                            <thead class="table-secondary">
+                                <tr>
+                                    <td>标题</td>
+                                    <td>创建时间</td>
+                                    <td>更新时间</td>
+                                </tr>
+                            </thead>
+                            <tbody class=\\"table-group-divider\\">
+                            </tbody>
+                        </table>
                     </body>
                     </html>
                     """;
