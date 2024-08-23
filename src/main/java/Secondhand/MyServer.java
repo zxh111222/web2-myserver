@@ -88,13 +88,13 @@ class MyHandler extends Thread {
         try {
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/app", "root", "123456");
             Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT title, url, created_time, updated_time FROM information");
+            ResultSet rs = stmt.executeQuery("SELECT title, url, createdAt, updatedAt FROM information");
 
             while (rs.next()) {
                 String title = rs.getString("title");
                 String url = rs.getString("url");
-                String created_time = formatDate(rs.getTimestamp("created_time"));
-                String updated_time = formatDate(rs.getTimestamp("updated_time"));
+                String created_time = formatDate(rs.getTimestamp("createdAt"));
+                String updated_time = formatDate(rs.getTimestamp("updatedAt"));
 
                 CustomResult article = new CustomResult(title, url, created_time, updated_time);
 
